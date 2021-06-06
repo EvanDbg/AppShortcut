@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #import "AppShortcutBlur.h"
 #include "AppList/AppList.h"
+#import "helpers.h"
 
 /*
  This is a tweak I wrote when I first started tweak development, please don't judge the code :P
@@ -68,7 +69,7 @@ bool boxIsMoving = NO;
 
 -(void)applicationDidFinishLaunching:(id)application {
     %orig();
-    
+    XLog(@"%@", @"applicationDidFinishLaunching");
     NSDictionary *bundleDefaults = [[NSUserDefaults standardUserDefaults] persistentDomainForName:@"com.donbytyqi.appshortcut"];
     id isEnabled = [bundleDefaults valueForKey:@"isEnabled"];
     id isDarkModeEnabled = [bundleDefaults valueForKey:@"isDarkModeEnabled"];
@@ -94,8 +95,9 @@ bool boxIsMoving = NO;
     }
     
     if ([isEnabled isEqual:@0]) {
-        %log("Cool!");
+        %log(@"Cool!");
     } else {
+        XLog(@"%@", @"window");
         window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
         window.windowLevel = UIWindowLevelAlert + 1;
         if ([window respondsToSelector:@selector(_setSecure:)]) [window _setSecure:YES];
@@ -111,12 +113,12 @@ bool boxIsMoving = NO;
         closeButton.contentMode = UIViewContentModeScaleAspectFit;
         closeButton.alpha = 0.0f;
         
-        double lastPositionKnownX = [[[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleX"] floatValue];
-        double lastPositionKnownY = [[[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleY"] floatValue];
+        double lastPositionKnownX = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleX"] ? [[[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleX"] floatValue] : 125.0;
+        double lastPositionKnownY = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleY"] ? [[[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleY"] floatValue] : 125.0;
         
         tempView = [[UIView alloc] initWithFrame: CGRectMake (0,0,50,50)];
         lastPosition = CGPointMake(lastPositionKnownX, lastPositionKnownY);
-        tempView.center = CGPointMake(lastPositionKnownX, lastPositionKnownY);
+        tempView.center = CGPointMake(125, 125);
         tempView.backgroundColor = [UIColor clearColor];
         tempView.layer.cornerRadius = 50 / 2;
         tempView.layer.shadowRadius  = 7.0f;
