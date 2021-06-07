@@ -1,4 +1,4 @@
-
+ARCHS = arm64 arm64e
 
 include $(THEOS)/makefiles/common.mk
 
@@ -7,6 +7,7 @@ appshortcut_FILES = adsRootListController.m
 appshortcut_INSTALL_PATH = /Library/PreferenceBundles
 appshortcut_FRAMEWORKS = UIKit MessageUI
 appshortcut_PRIVATE_FRAMEWORKS = Preferences
+appshortcut_CFLAGS = -Wno-deprecated-declarations
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 

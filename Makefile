@@ -1,11 +1,11 @@
 THEOS_PACKAGE_DIR_NAME = debs
-ARCHS = armv7 arm64 arm64e
+ARCHS = arm64 arm64e
 TARGET = iphone:clang
 # TARGET = simulator:clang::7.0
 # ARCHS = x86_64 i386
 # i386 slice is required for 32-bit iOS Simulator (iPhone 5, etc.)
 DEBUG = 1
-PACKAGE_VERSION = $(THEOS_PACKAGE_BASE_VERSION)
+FINALPACKAGE = 0
 
 include $(THEOS)/makefiles/common.mk
 

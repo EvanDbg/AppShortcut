@@ -3,6 +3,12 @@
 #include "AppList/AppList.h"
 #import "helpers.h"
 
+#define ScreenWidth ([UIScreen mainScreen].bounds.size.width)
+#define ScreenHeight ([UIScreen mainScreen].bounds.size.height)
+
+#define kXPosition @"ElastPositionOfCircleX"
+#define kYPosition @"ElastPositionOfCircleY"
+
 /*
  This is a tweak I wrote when I first started tweak development, please don't judge the code :P
  */
@@ -97,7 +103,6 @@ bool boxIsMoving = NO;
     if ([isEnabled isEqual:@0]) {
         %log(@"Cool!");
     } else {
-        XLog(@"%@", @"window");
         window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
         window.windowLevel = UIWindowLevelAlert + 1;
         if ([window respondsToSelector:@selector(_setSecure:)]) [window _setSecure:YES];
@@ -113,12 +118,12 @@ bool boxIsMoving = NO;
         closeButton.contentMode = UIViewContentModeScaleAspectFit;
         closeButton.alpha = 0.0f;
         
-        double lastPositionKnownX = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleX"] ? [[[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleX"] floatValue] : 125.0;
-        double lastPositionKnownY = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleY"] ? [[[NSUserDefaults standardUserDefaults] objectForKey:@"lastPositionOfCircleY"] floatValue] : 125.0;
+        double lastPositionKnownX = [[NSUserDefaults standardUserDefaults] objectForKey:kXPosition] ? [[[NSUserDefaults standardUserDefaults] objectForKey:kXPosition] floatValue] : ScreenWidth / 2 - 25;
+        double lastPositionKnownY = [[NSUserDefaults standardUserDefaults] objectForKey:kYPosition] ? [[[NSUserDefaults standardUserDefaults] objectForKey:kYPosition] floatValue] : ScreenHeight / 2 - 25;
         
         tempView = [[UIView alloc] initWithFrame: CGRectMake (0,0,50,50)];
         lastPosition = CGPointMake(lastPositionKnownX, lastPositionKnownY);
-        tempView.center = CGPointMake(125, 125);
+        tempView.center = CGPointMake(lastPositionKnownX, lastPositionKnownY);
         tempView.backgroundColor = [UIColor clearColor];
         tempView.layer.cornerRadius = 50 / 2;
         tempView.layer.shadowRadius  = 7.0f;
@@ -259,6 +264,7 @@ bool boxIsMoving = NO;
 
 %new
 - (void)tap:(UITapGestureRecognizer *)recognizer {
+    XLog(@"UITapGestureRecognizer hasBeenResized ===> %d", hasBeenResized);
     if(hasBeenResized) {
         [UIView animateWithDuration:0.4
                               delay:.0
@@ -371,6 +377,7 @@ bool boxIsMoving = NO;
         
         if(pan.state == UIGestureRecognizerStateEnded)
         {
+            XLog(@"UIGestureRecognizerStateEnded ===> %@", @"Stoped");
             //All fingers are lifted.
             userIsMovingTheCircle = NO;
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -378,22 +385,19 @@ bool boxIsMoving = NO;
                     if(moveFreely == NO) {
                         if(viewToDrag.center.x < (viewToDrag.superview.frame.size.width / 2)) {
                             viewToDrag.center = CGPointMake(25.0, viewToDrag.center.y);
-                            lastPosition = viewToDrag.center;
-                            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithFloat:lastPosition.x] forKey:@"lastPositionOfCircleX"];
-                            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithFloat:lastPosition.y] forKey:@"lastPositionOfCircleY"];
-                            [[NSUserDefaults standardUserDefaults] synchronize];
                         } else {
                             viewToDrag.center = CGPointMake([[UIScreen mainScreen] bounds].size.width - 25, viewToDrag.center.y);
-                            lastPosition = viewToDrag.center;
-                            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithFloat:lastPosition.x] forKey:@"lastPositionOfCircleX"];
-                            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithFloat:lastPosition.y] forKey:@"lastPositionOfCircleY"];
-                            [[NSUserDefaults standardUserDefaults] synchronize];
                         }
                         
                         collectionView.center = CGPointMake(viewToDrag.center.x + 20, viewToDrag.center.y);
                         [pan setTranslation:CGPointZero inView:viewToDrag.superview];
                         boxIsMoving = NO;
                     }
+                    
+                    lastPosition = viewToDrag.center;
+                    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithFloat:lastPosition.x] forKey:kXPosition];
+                    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithFloat:lastPosition.y] forKey:kYPosition];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
                 }];
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     [NSThread sleepForTimeInterval:2.0f];
